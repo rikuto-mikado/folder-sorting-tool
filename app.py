@@ -1,6 +1,9 @@
 from pathlib import Path
 import argparse
 
+# shutil is basic library for file operations
+import shutil
+
 # Define the sorting rules
 CATEGORY_RULES = {
     "images": {".jpg", ".jpeg", ".png", ".gif", ".webp"},
@@ -23,6 +26,19 @@ def categorize_file(file_path):
             return category
 
     return DEFAULT_CATEGORY
+
+
+def move_file_to_category(file_path: Path, target_dir: Path):
+    category = categorize_file(file_path)
+    dest_dir = target_dir / category
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    dest_path = dest_dir / file_path.name
+
+    # If there are name conflicts, it will overwrite the exisiting file, just for now
+    shutil.move(str(file_path), str(dest_path))
+
+    return category, dest_path
 
 
 # Function to iterate through all files in the target directory and its subdirectories
