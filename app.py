@@ -60,39 +60,29 @@ def main():
     target = Path(args.target_dir)
 
     if not target.exists() or not target.is_dir():
-        print(f"Error: The directory '{target} does not exist or is not a directory")
+        print(f"Error: The directory '{target}' does not exist or is not a directory")
         return
 
     print("=== auto-file-sorter ===")
     print(f"Scanning directory: {target}")
-    print("Categorization results:")
 
-    # Initialize category counts
     count = 0
-
     for file_path in iter_files(target):
-        category = categorize_file(file_path)
-        dest_dir = target / category
-        # dest_path is the full path where the file will be moved, which is included dest_dir and the file name
-        dest_path = dest_dir / file_path.name
-
         try:
+            category, dest_path = move_file_to_category(file_path, target)
+
             rel_src = file_path.relative_to(target)
-        except ValueError:
-            # Just in case(cause of unexpected errors)
-            rel_src = file_path
+            rel_dest = dest_path.relative_to(target)
 
-        rel_dest = dest_path.relative_to(target)
-
-        # Print the categorization result
-        print(f"{rel_src} --> {rel_dest} ({category})")
-        count += 1
+            print(f"Moved: {rel_src} --> {rel_dest} [{category}]")
+            count += 1
+        except Exception as e:
+            print(f"Error moving file {file_path}: {e}")
 
     if count == 0:
         print("No files found to categorize")
     else:
-        print(f"Total files categorized is: {count}")
-        print("Categorization completed.")
+        print(f"{count} files categorized successfully")
 
 
 # Run the main function when the script is executed
